@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Asesmen SDN 1 Gondang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0284c7;
+            --secondary-blue: #93c5fd;
+            --accent-green: #10b981;
+            --bg-gray: #f3f4f6;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: #ffffff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 640px) {
+            .app-container {
+                height: 90vh;
+                border-radius: 24px;
+            }
+        }
+
+        .font-sahabat {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.1em;
+            background: linear-gradient(to bottom, #1e293b, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.3));
+        }
+
+        .btn-masuk {
+            background-color: var(--accent-green);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-masuk:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-nav {
+            background-color: var(--primary-blue);
+            border-radius: 12px;
+            color: white;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .option-item {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+        }
+
+        .selected-option {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+            transform: translateX(8px);
+        }
+
+        #loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(4px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: white;
+        }
+
+        .input-field {
+            background-color: #ffffff;
+            color: #1e293b;
+            text-align: center;
+            font-weight: bold;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            outline: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container p-6" id="app">
+    <div id="loading-overlay">
+        <div class="animate-spin rounded-full h-14 w-14 border-4 border-blue-400 border-t-transparent mb-4"></div>
+        <p class="font-bold text-lg">Memproses Data...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="flex flex-col items-center justify-center h-full">
+        <div class="mb-6">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiUAgnz3M-C0b4aP4NCccOVpRTBjimetBgZhyphenhyphenkGcMIcG3YY7RhacnjOZFFonylLQGbQ0LQHR7n4cOk7XN8mDb9YmRrXgJi5q7yZCEEKpQ4CYuB9WaZLCNw35_qVPvcRTizOMvZXsYVqmAOSfxDv9bUmpB9z_-2G3ecR_C1CONgsQ5-5U5NA2B9rpU4zfJnZ/w200-h200/sdn%20gng%201.png" alt="Logo SDN 1 Gondang" class="w-28 h-28 object-contain">
+        </div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 leading-tight uppercase">Selamat Datang</h1>
+            <h2 class="text-5xl font-black mb-2 font-sahabat uppercase">Sahabat</h2>
+            <p class="text-[10px] text-gray-600 font-medium tracking-widest uppercase text-center">
+                Sistem Asesmen Hasil Amanah Berprestasi Akurat & Terpercaya
+            </p>
+        </div>
+
+        <div class="w-full space-y-4">
+            <input type="text" id="name" placeholder="NAMA LENGKAP" class="input-field uppercase">
+            <input type="number" id="absen" placeholder="NOMOR ABSEN" class="input-field">
+            <button onclick="startExam()" class="w-full py-4 mt-2 rounded-xl btn-masuk text-white font-bold text-lg shadow-lg uppercase">
+                Mulai Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- Exam Screen -->
+    <div id="exam-screen" class="hidden flex flex-col h-full">
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                Soal <span id="current-number">1</span> / <span id="total-questions">0</span>
+            </span>
+            <span id="timer" class="text-gray-700 font-mono font-bold text-sm">00:00</span>
+        </div>
+        
+        <div class="flex-grow">
+            <div class="bg-blue-50 rounded-2xl p-5 mb-6 border-l-4 border-blue-600">
+                <p id="question-text" class="text-base font-bold text-gray-800 leading-relaxed">Memuat...</p>
+            </div>
+            <div id="options-container" class="space-y-3"></div>
+        </div>
+
+        <div class="flex justify-between items-center mt-6 pb-4 gap-3">
+            <button onclick="prevQuestion()" id="prev-btn" class="btn-nav flex-1 opacity-50" disabled>KEMBALI</button>
+            <button onclick="handleNext()" class="btn-nav flex-1" id="next-btn">LANJUT</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 class="text-xl font-bold mb-2">Selesai?</h3>
+        <p class="text-sm text-gray-600 mb-6">Pastikan semua jawaban sudah terisi.</p>
+        <div class="flex gap-3">
+            <button onclick="hideConfirm()" class="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-500">BATAL</button>
+            <button onclick="finishExam()" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold">KIRIM</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz1sq6Ks2rC3lIdcA3i9TRLPebUdny0st73zmcZXI7HVVSZ63hxJWsz3_rVOH3L0gdO/exec'; 
+
+    const questions = [
+{ 
+    id: 9, 
+    text: "Cerita fabel adalah cerita yang tokohnya berupa ....", 
+    options: [{id:'A', text:'Manusia'}, {id:'B', text:'Hewan'}, {id:'C', text:'Tumbuhan'}, {id:'D', text:'Benda mati'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 10, 
+    text: "Sifat tokoh semut dalam fabel biasanya digambarkan sebagai hewan yang ....", 
+    options: [{id:'A', text:'Pemalas'}, {id:'B', text:'Rajin bekerja'}, {id:'C', text:'Sombong'}, {id:'D', text:'Pemarah'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 11, 
+    text: "Peribahasa 'Sedikit demi sedikit, lama-lama menjadi bukit' mengajar kita untuk ....", 
+    options: [{id:'A', text:'Sabar menabung'}, {id:'B', text:'Rajin belajar'}, {id:'C', text:'Suka berbelanja'}, {id:'D', text:'Cepat bekerja'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 12, 
+    text: "Orang yang berbelanja lebih banyak dari uang yang dimiliki disebut ....", 
+    options: [{id:'A', text:'Besar pasak daripada tiang'}, {id:'B', text:'Ada udang di balik batu'}, {id:'C', text:'Tong kosong nyaring bunyinya'}, {id:'D', text:'Air tenang menghanyutkan'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 13, 
+    text: "Mengapa fabel sangat disukai anak-anak?", 
+    options: [{id:'A', text:'Karena hewannya bisa bicara'}, {id:'B', text:'Karena ceritanya sangat menyeramkan'}, {id:'C', text:'Karena tidak ada gambarnya'}, {id:'D', text:'Karena ceritanya sangat panjang'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 14, 
+    text: "Tokoh kancil dalam cerita fabel sering digambarkan sebagai hewan yang ....", 
+    options: [{id:'A', text:'Cerdik'}, {id:'B', text:'Bodoh'}, {id:'C', text:'Lambat'}, {id:'D', text:'Takut'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 15, 
+    text: "Pesan moral dalam fabel disebut juga sebagai ....", 
+    options: [{id:'A', text:'Judul'}, {id:'B', text:'Sampiran'}, {id:'C', text:'Amanat'}, {id:'D', text:'Isi'}], 
+    correct: 'C' 
+  },
+
+  // --- KATA BENDA, KATA SIFAT, & ANTONIM (16-25) ---
+  { 
+    id: 16, 
+    text: "Kelompok kata di bawah ini yang semuanya adalah kata benda adalah ....", 
+    options: [{id:'A', text:'Meja, kursi, lari'}, {id:'B', text:'Lemari, tas, sepatu'}, {id:'C', text:'Merah, buku, pintar'}, {id:'D', text:'Pensil, makan, tas'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 17, 
+    text: "Boneka Lani sangat lembut. Kata 'lembut' termasuk jenis kata ....", 
+    options: [{id:'A', text:'Benda'}, {id:'B', text:'Sifat'}, {id:'C', text:'Kerja'}, {id:'D', text:'Bilangan'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 18, 
+    text: "Antonim atau lawan kata dari 'Terang' adalah ....", 
+    options: [{id:'A', text:'Siang'}, {id:'B', text:'Gelap'}, {id:'C', text:'Lampu'}, {id:'D', text:'Matahari'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 19, 
+    text: "Ruang kelas itu sangat kotor. Lawan kata kotor adalah ....", 
+    options: [{id:'A', text:'Wangi'}, {id:'B', text:'Bersih'}, {id:'C', text:'Luas'}, {id:'D', text:'Berantakan'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 20, 
+    text: "Gajah itu besar, tetapi semut itu ....", 
+    options: [{id:'A', text:'Kecil'}, {id:'B', text:'Panjang'}, {id:'C', text:'Tinggi'}, {id:'D', text:'Berat'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 21, 
+    text: "Lawan kata dari 'Cepat' adalah ....", 
+    options: [{id:'A', text:'Lambat'}, {id:'B', text:'Lama'}, {id:'C', text:'Singkat'}, {id:'D', text:'Pendek'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 22, 
+    text: "Jeruk ini rasanya asam. Kata 'asam' adalah kata ....", 
+    options: [{id:'A', text:'Benda'}, {id:'B', text:'Sifat'}, {id:'C', text:'Keterangan'}, {id:'D', text:'Ganti'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 23, 
+    text: "Lawan kata 'Sedih' adalah ....", 
+    options: [{id:'A', text:'Marah'}, {id:'B', text:'Senang'}, {id:'C', text:'Takut'}, {id:'D', text:'Kecewa'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 24, 
+    text: "Lawan kata 'Tajam' adalah ....", 
+    options: [{id:'A', text:'Runcing'}, {id:'B', text:'Tumpul'}, {id:'C', text:'Keras'}, {id:'D', text:'Kasar'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 25, 
+    text: "Benda yang digunakan untuk merapikan rambut adalah ....", 
+    options: [{id:'A', text:'Sabun'}, {id:'B', text:'Sisir'}, {id:'C', text:'Handuk'}, {id:'D', text:'Cermin'}], 
+    correct: 'B' 
+  },
+
+  // --- UANG & MENCATAT PENGELUARAN (26-33) ---
+  { 
+    id: 26, 
+    text: "Alat pembayaran yang sah di Indonesia adalah uang ....", 
+    options: [{id:'A', text:'Dollar'}, {id:'B', text:'Rupiah'}, {id:'C', text:'Ringgit'}, {id:'D', text:'Yen'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 27, 
+    text: "Uang yang terbuat dari kertas dan mudah dilipat disebut uang ....", 
+    options: [{id:'A', text:'Logam'}, {id:'B', text:'Kertas'}, {id:'C', text:'Koin'}, {id:'D', text:'Plastik'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 28, 
+    text: "Mengapa kita perlu mencatat uang yang kita keluarkan?", 
+    options: [{id:'A', text:'Agar uang cepat habis'}, {id:'B', text:'Agar tahu uang dipakai untuk apa'}, {id:'C', text:'Agar teman tahu'}, {id:'D', text:'Agar bisa beli mainan'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 29, 
+    text: "Penulisan nilai uang 'sepuluh ribu rupiah' yang benar adalah ....", 
+    options: [{id:'A', text:'Rp 10.00'}, {id:'B', text:'Rp10.000,00'}, {id:'C', text:'Rp1000'}, {id:'D', text:'Rp100.000'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 30, 
+    text: "Jika harga es krim Rp2.000,00 dan kamu membayar Rp5.000,00, kembaliannya adalah ....", 
+    options: [{id:'A', text:'Rp2.000,00'}, {id:'B', text:'Rp3.000,00'}, {id:'C', text:'Rp1.000,00'}, {id:'D', text:'Rp4.000,00'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 31, 
+    text: "Uang logam Rp1.000,00 berjumlah dua keping nilainya sama dengan ....", 
+    options: [{id:'A', text:'Rp1.500,00'}, {id:'B', text:'Rp2.000,00'}, {id:'C', text:'Rp3.000,00'}, {id:'D', text:'Rp5.000,00'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 32, 
+    text: "Membeli barang yang hanya dibutuhkan saja adalah perilaku ....", 
+    options: [{id:'A', text:'Boros'}, {id:'B', text:'Hemat'}, {id:'C', text:'Pelit'}, {id:'D', text:'Kaya'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 33, 
+    text: "Tabungan yang biasanya berbentuk celengan terbuat dari ....", 
+    options: [{id:'A', text:'Kertas'}, {id:'B', text:'Tanah liat/Plastik'}, {id:'C', text:'Kain'}, {id:'D', text:'Daun'}], 
+    correct: 'B' 
+  },
+
+  // --- JENIS PEKERJAAN (34-42) ---
+  { 
+    id: 34, 
+    text: "Orang yang bekerja menangkap ikan di laut disebut ....", 
+    options: [{id:'A', text:'Petani'}, {id:'B', text:'Nelayan'}, {id:'C', text:'Pedagang'}, {id:'D', text:'Supir'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 35, 
+    text: "Ibu Rani bekerja membantu dokter di rumah sakit. Beliau adalah ....", 
+    options: [{id:'A', text:'Guru'}, {id:'B', text:'Perawat'}, {id:'C', text:'Polisi'}, {id:'D', text:'Koki'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 36, 
+    text: "Ayah bekerja di dapur restoran untuk memasak. Ayah adalah seorang ....", 
+    options: [{id:'A', text:'Pelayan'}, {id:'B', text:'Koki'}, {id:'C', text:'Kasir'}, {id:'D', text:'Satpam'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 37, 
+    text: "Pekerjaan yang menghasilkan jasa keamanan di lingkungan desa adalah ....", 
+    options: [{id:'A', text:'Hansip/Satpam'}, {id:'B', text:'Petani'}, {id:'C', text:'Penjahit'}, {id:'D', text:'Nelayan'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 38, 
+    text: "Orang yang pekerjaannya membuat pakaian disebut ....", 
+    options: [{id:'A', text:'Tukang Kayu'}, {id:'B', text:'Penjahit'}, {id:'C', text:'Arsitek'}, {id:'D', text:'Model'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 39, 
+    text: "Siapakah yang bertugas mengemudikan kapal laut?", 
+    options: [{id:'A', text:'Masinis'}, {id:'B', text:'Nahkoda'}, {id:'C', text:'Pilot'}, {id:'D', text:'Sopir'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 40, 
+    text: "Seorang guru bekerja untuk memberikan ilmu di ....", 
+    options: [{id:'A', text:'Pasar'}, {id:'B', text:'Sekolah'}, {id:'C', text:'Kantor polisi'}, {id:'D', text:'Stasiun'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 41, 
+    text: "Pekerjaan yang menghasilkan barang berupa padi dan sayur adalah ....", 
+    options: [{id:'A', text:'Guru'}, {id:'B', text:'Petani'}, {id:'C', text:'Polisi'}, {id:'D', text:'Dokter'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 42, 
+    text: "Petugas yang memadamkan api saat kebakaran disebut ....", 
+    options: [{id:'A', text:'Polisi'}, {id:'B', text:'Pemadam Kebakaran'}, {id:'C', text:'Tentara'}, {id:'D', text:'Satpam'}], 
+    correct: 'B' 
+  },
+
+  // --- PANTUN (43-50) ---
+  { 
+    id: 43, 
+    text: "Baris pertama dan kedua dalam pantun disebut ....", 
+    options: [{id:'A', text:'Isi'}, {id:'B', text:'Sampiran'}, {id:'C', text:'Judul'}, {id:'D', text:'Tema'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 44, 
+    text: "Baris ketiga dan keempat dalam pantun disebut ....", 
+    options: [{id:'A', text:'Sampiran'}, {id:'B', text:'Isi'}, {id:'C', text:'Latar'}, {id:'D', text:'Sajak'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 45, 
+    text: "Pantun memiliki sajak yang berakhiran ....", 
+    options: [{id:'A', text:'a-a-a-a'}, {id:'B', text:'a-b-a-b'}, {id:'C', text:'a-a-b-b'}, {id:'D', text:'b-b-a-a'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 46, 
+    text: "Satu bait pantun terdiri dari ... baris.", 
+    options: [{id:'A', text:'Dua'}, {id:'B', text:'Tiga'}, {id:'C', text:'Empat'}, {id:'D', text:'Lima'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 47, 
+    text: "Jalan-jalan ke pasar baru \n Jangan lupa beli sepatu \n Baris di atas disebut ....", 
+    options: [{id:'A', text:'Sampiran'}, {id:'B', text:'Isi'}, {id:'C', text:'Nasihat'}, {id:'D', text:'Pesan'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 48, 
+    text: "Pesan atau nasihat dalam pantun terletak pada baris ke ....", 
+    options: [{id:'A', text:'1 dan 2'}, {id:'B', text:'3 dan 4'}, {id:'C', text:'1 dan 3'}, {id:'D', text:'2 dan 4'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 49, 
+    text: "Pantun adalah salah satu jenis puisi ....", 
+    options: [{id:'A', text:'Modern'}, {id:'B', text:'Lama'}, {id:'C', text:'Baru'}, {id:'D', text:'Bebas'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 50, 
+    text: "Belajar itu haruslah rajin \n Agar kita menjadi pintar \n Bagian ini disebut sebagai ....", 
+    options: [{id:'A', text:'Sampiran'}, {id:'B', text:'Isi'}, {id:'C', text:'Sajak'}, {id:'D', text:'Pembuka'}], 
+    correct: 'B' 
+  }
+    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    let userData = { name: '', absen: '' };
+    let startTime;
+    let timerInterval;
+
+    function startExam() {
+        userData.name = document.getElementById('name').value.trim();
+        userData.absen = document.getElementById('absen').value.trim();
+
+        if (!userData.name || !userData.absen) {
+            alert("Isi Nama dan Absen!");
+            return;
+        }
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('exam-screen').classList.remove('hidden');
+        document.getElementById('total-questions').innerText = questions.length;
+        
+        startTime = new Date();
+        timerInterval = setInterval(updateTimer, 1000);
+        renderQuestion();
+    }
+
+    function updateTimer() {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = Math.floor(diff / 60).toString().padStart(2, '0');
+        const s = (diff % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerText = `${m}:${s}`;
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('current-number').innerText = currentQuestionIndex + 1;
+        document.getElementById('question-text').innerText = q.text;
+        document.getElementById('progress-bar').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        q.options.forEach(opt => {
+            const isSelected = userAnswers[currentQuestionIndex] === opt.id;
+            const div = document.createElement('div');
+            div.className = `option-item p-4 rounded-xl font-medium flex items-center shadow-sm ${isSelected ? 'selected-option' : ''}`;
+            div.innerHTML = `
+                <div class="w-7 h-7 rounded-full flex items-center justify-center mr-3 text-xs font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}">
+                    ${opt.id}
+                </div>
+                <span class="text-sm">${opt.text}</span>
+            `;
+            div.onclick = () => { 
+                userAnswers[currentQuestionIndex] = opt.id; 
+                renderQuestion(); 
+            };
+            container.appendChild(div);
+        });
+
+        document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+        document.getElementById('prev-btn').style.opacity = currentQuestionIndex === 0 ? '0.5' : '1';
+        document.getElementById('next-btn').innerText = currentQuestionIndex === questions.length - 1 ? "SELESAI" : "LANJUT";
+    }
+
+    function handleNext() {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            renderQuestion();
+        } else {
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestion();
+        }
+    }
+
+    function hideConfirm() { 
+        document.getElementById('confirm-modal').style.display = 'none'; 
+    }
+
+    async function finishExam() {
+        hideConfirm();
+        clearInterval(timerInterval);
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        let correct = 0;
+        questions.forEach((q, i) => { if (userAnswers[i] === q.correct) correct++; });
+        const score = Math.round((correct / questions.length) * 100);
+
+        const payload = new URLSearchParams();
+        payload.append('timestamp', new Date().toLocaleString());
+        payload.append('nama', userData.name);
+        payload.append('absen', userData.absen);
+        payload.append('skor', score);
+        payload.append('durasi', document.getElementById('timer').innerText);
+
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: payload });
+            showResult(score, correct);
+        } catch (e) {
+            showResult(score, correct);
+        } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+    }
+
+    function showResult(score, correct) {
+        document.getElementById('exam-screen').innerHTML = `
+            <div class="flex flex-col items-center justify-center text-center h-full py-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h1 class="text-xl font-black mb-1">UJIAN SELESAI</h1>
+                <p class="text-xs text-gray-500 mb-6">${userData.name} - Absen ${userData.absen}</p>
+                
+                <div class="text-6xl font-black text-blue-600 mb-6">${score}</div>
+
+                <div class="grid grid-cols-2 gap-3 w-full mb-6">
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Benar</div>
+                        <div class="text-lg font-bold text-green-600">${correct}</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Salah</div>
+                        <div class="text-lg font-bold text-red-500">${questions.length - correct}</div>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="btn-nav w-full py-3 uppercase">Kembali</button>
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>
